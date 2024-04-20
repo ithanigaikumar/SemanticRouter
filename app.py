@@ -8,14 +8,14 @@ from unify import AsyncUnify
 async def async_chat(api_key, user_input):
     async_unify = AsyncUnify(
         api_key=api_key, endpoint="llama-2-13b-chat@anyscale")
-    # Ensure this is async and properly awaited
+    # Ensure this is async and properly awaited so doesnt block application
     response = await async_unify.generate(user_prompt=user_input)
 
     # If response is a string and not a stream, handle it directly
     if isinstance(response, str):
         return response
 
-    # If response is indeed a stream, then iterate over it
+    # If response is a stream, then iterate over it
     response_text = ''
     async for chunk in response:
         response_text += chunk
