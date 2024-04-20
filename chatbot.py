@@ -23,7 +23,7 @@ To run this notebook, you will need to install the `unifyai` [python package](ht
 We define a simple chatbot class below, with the only public function being `run`. Before starting, you should to obtain a UNIFY key from the [console page](https://console.unify.ai/login?callbackUrl=%2F) and assign it to the `UNIFY_KEY` variable below.
 """
 
-UNIFY_KEY = 'DdrGnPkzyPHSY6r8oKDsmQVz-SrBMivWKirJ4Ugd4Fw='
+UNIFY_KEY = '7wTNz+iEWsWIEdvuCtLR8ov1tjnHkUFfcwE5wLR3YWM='
 #pip install Unify
 import sys
 
