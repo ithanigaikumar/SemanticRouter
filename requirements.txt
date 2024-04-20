@@ -1,0 +1,6 @@
+streamlit
+openai
+langchain
+
+unifyai
+semantic-router==0.0.32
