@@ -274,7 +274,7 @@ agent.run(show_credits=True)
 For example we can start with a small model for answering simple questions, such as recalling facts, and then move to a larger model for a more complex task, such as creative writing.
 """
 
-agent = ChatBot(api_key = UNIFY_KEY, endpoint = "llama-2-70b-chat@anyscale")
+agent = ChatBot(api_key = UNIFY_KEY, endpoint = "llama-2-13b-chat@lowest-input-cost")
 agent.run(show_credits=True)
 
 agent.set_endpoint("gpt-4-turbo@openai")
@@ -293,7 +293,7 @@ agent.run(show_provider=True)
 If the task is to summarize a document or your chat history grows, typically the input-cost becomes the primary cost driver. You can use our `lowest-input-cost` mode to direct queries to the provider with the lowest input cost automatically.
 """
 
-agent = ChatBot(api_key=UNIFY_KEY, endpoint="llama-2-70b-chat@lowest-input-cost")
+agent = ChatBot(api_key=UNIFY_KEY, endpoint="llama-2-13b-chat@lowest-input-cost")
 agent.run(show_provider=True)
 
 """# Python Package
@@ -302,7 +302,7 @@ The python package already contains the `ChatBot` agent and you may use it direc
 """
 
 from unify import ChatBot
-chatbot = ChatBot(api_key = UNIFY_KEY, endpoint="llama-2-7b-chat@anyscale")
+chatbot = ChatBot(api_key = UNIFY_KEY, endpoint="llama-2-13b-chat@lowest-input-cost")
 chatbot.run()
 
 """#Round Up
