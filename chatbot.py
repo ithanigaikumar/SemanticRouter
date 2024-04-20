@@ -259,7 +259,7 @@ class ChatBot:
 Now, we can instantiate and chat with this agent. For this demo, we'll utilize the `llama-2-7b-chat` model from `anyscale`. However, you have the flexibility to select any model and provider from our supported options on the [benchmarks interface](https://unify.ai/hub).
 """
 
-agent = ChatBot(api_key = UNIFY_KEY, endpoint = "llama-2-70b-chat@anyscale")
+agent = ChatBot(api_key = UNIFY_KEY, endpoint = "llama-2-13b-chat@lowest-input-cost")
 agent.run()
 
 """You can also see how many credits your prompt used. This option is set in the constructor, but it can be overwritten during the run command. When enabled, each response from the chatbot will then be appended with the credits spent:
