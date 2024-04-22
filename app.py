@@ -115,12 +115,12 @@ def handle_send():
         st.session_state.history.append(f"Bot: {response}")
     # Clear the input field by resetting the state variable
     st.session_state.user_input = ""
-    st.experimental_rerun()
+    st.rerun()
 
 
 def main():
     st.sidebar.title("Configuration")
-    unify_key = st.sidebar.text_input("Enter your UNIFY_KEY", value="")
+    unify_key = st.sidebar.text_input("Enter your UNIFY_KEY", type='password')
     openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password')
 
     if openai_api_key and not openai_api_key.startswith('sk-'):
