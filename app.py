@@ -10,7 +10,6 @@ from semantic_router.encoders import OpenAIEncoder
 
 # Asynchronously handle chat operations
 
-
 async def async_chat(openai_api_key, api_key, user_input, routes):
     # encoder = CohereEncoder()
     os.environ["OPENAI_API_KEY"] = openai_api_key
@@ -106,40 +105,47 @@ def defineRoutes():
     return routes
 
 
+def handle_send():
+    user_input = st.session_state.user_input
+    route_list = defineRoutes()
+    if user_input:
+        st.session_state.history.append(f"You: {user_input}")
+        response = asyncio.run(async_chat(st.session_state.openai_api_key,
+                                          st.session_state.unify_key, user_input, route_list))
+        st.session_state.history.append(f"Bot: {response}")
+    # Clear the input field by resetting the state variable
+    st.session_state.user_input = ""
+    st.experimental_rerun()
+
+
 def main():
     st.sidebar.title("Configuration")
     unify_key = st.sidebar.text_input("Enter your UNIFY_KEY", value="")
     openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password')
 
-    # Check if OpenAI API key starts with 'sk-'
     if openai_api_key and not openai_api_key.startswith('sk-'):
         st.sidebar.warning('Please enter a valid OpenAI API key!', icon='⚠️')
 
-    # Proceed only if both keys are entered correctly
     if unify_key and openai_api_key.startswith('sk-'):
+        st.session_state.unify_key = unify_key
+        st.session_state.openai_api_key = openai_api_key
         st.title("Streaming Router ChatBot")
 
-        # Initialize conversation history in session state if not already present
         if 'history' not in st.session_state:
             st.session_state.history = []
 
-        # Display each message in the history
         for message in st.session_state.history:
             sender, text = message.split(": ", 1)
             st.text(f"{sender}: {text}")
 
-        # Input for user message
-        user_input = st.text_input("Type your message here:", key="user_input")
-        route_list = defineRoutes()
-        # Button to send the message
-        if st.button("Send") and user_input:
-            st.session_state.history.append(f"You: {user_input}")
-            # Process chat asynchronously
-            response = asyncio.run(async_chat(openai_api_key,
-                                              unify_key, user_input, route_list))
-            st.session_state.history.append(f"Bot: {response}")
-            # Trigger a rerun of the app to update the conversation display
-            st.rerun()
+        # The user_input is now tied to the text input's state directly
+        st.session_state.user_input = st.text_input(
+            "Type your message here:", value=st.session_state.get('user_input', ''))
+
+        if st.button("Send", on_click=handle_send):
+            # Button press is handled in the handle_send function
+            pass
+
     else:
         st.error("Please enter valid keys to start chatting.")
 
