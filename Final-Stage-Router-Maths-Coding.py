@@ -24,7 +24,7 @@ async def async_chat(openai_api_key, api_key, user_input, routes):
         unify = AsyncUnify(
             api_key=api_key,
             # Use the correct endpoint for math queries
-            endpoint="llama-2-13b-chat@anyscale"
+            endpoint="gpt-4"
         )
         # Generate the response using Unify
         response = await unify.generate(user_prompt=user_input)
@@ -43,7 +43,7 @@ async def async_chat(openai_api_key, api_key, user_input, routes):
         unify = AsyncUnify(
             api_key=api_key,
             # Use the correct endpoint for coding queries
-            endpoint="codellama-34b-instruct@anyscale"
+            endpoint="deepseek-coder-33b-instruct"
         )
         # Generate the response using Unify
         response = await unify.generate(user_prompt=user_input)
@@ -117,8 +117,11 @@ def handle_send():
     # Clear the input field by resetting the state variable
     st.session_state.user_input = ""
     st.rerun()
+#unifyai
+#7wTNz+iEWsWIEdvuCtLR8ov1tjnHkUFfcwE5wLR3YWM=
 
-
+#openai
+#sk-proj-1pP1PtFQ0XNgLSlWLQN2T3BlbkFJtjtujIuIzCVJD60wQOzC
 
 def main():
     st.sidebar.title("Configuration")
