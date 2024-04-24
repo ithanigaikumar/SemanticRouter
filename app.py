@@ -5,6 +5,7 @@ import os
 from semantic_router import Route
 from getpass import getpass
 from semantic_router import RouteLayer
+from concurrent.futures import ThreadPoolExecutor
 from semantic_router.encoders import OpenAIEncoder
 
 
@@ -89,20 +90,23 @@ def defineRoutes():
 # handles send
 
 
-def handle_send():
-    user_input = st.session_state.user_input
-    if user_input:
-        st.session_state.history.append(f"You: {user_input}")
-        # Asynchronously handle the chat response
-        response = asyncio.run(async_chat(st.session_state.openai_api_key,
-                                          st.session_state.unify_key, user_input, defineRoutes()))
-        st.session_state.history.append(f"Bot: {response}")
-    # Reset the input field after handling the send
-    st.session_state.user_input = ""
+def run_async_coroutine(coroutine):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    return loop.run_until_complete(coroutine)
 
 
-# main function
+def async_chat_wrapper(user_input, openai_api_key, unify_key, routes):
+    coroutine = async_chat(openai_api_key, unify_key, user_input, routes)
+    return run_async_coroutine(coroutine)
+
+
 def main():
+    # Assuming that 'defineRoutes' and 'async_chat_wrapper' are defined elsewhere
+
+    # Include Font Awesome
+    st.markdown('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">', unsafe_allow_html=True)
+
     st.sidebar.title("Configuration")
     unify_key = st.sidebar.text_input("Enter your UNIFY_KEY", type='password')
     openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password')
@@ -113,21 +117,28 @@ def main():
     if unify_key and openai_api_key.startswith('sk-'):
         st.session_state.unify_key = unify_key
         st.session_state.openai_api_key = openai_api_key
-        st.title("Streaming Router ChatBot")
+        st.title("🤖💬 Streaming Router ChatBot")
 
         if 'history' not in st.session_state:
             st.session_state.history = []
 
         for message in st.session_state.history:
-            sender, text = message.split(": ", 1)
-            st.markdown(f"{sender}: {text}")
+            st.markdown(message, unsafe_allow_html=True)
 
-        user_input = st.text_input(
-            "Type your message here:", key="input", value="")
-        st.session_state.user_input = user_input
+        user_input = st.text_input("Type your message here:", key="input")
 
-        if st.button("Send", on_click=handle_send):
-            pass  # Button press is handled in the handle_send function
+        if st.button("Send") and user_input:
+            routes = defineRoutes()
+            with ThreadPoolExecutor() as executor:
+                future = executor.submit(
+                    async_chat_wrapper, user_input, st.session_state.openai_api_key, st.session_state.unify_key, routes)
+                response = future.result()
+                st.session_state.history.append(
+                    f'<i class="fas fa-user"></i> {user_input}')
+                st.session_state.history.append(
+                    f'<i class="fas fa-robot"></i> {response}')
+                st.experimental_rerun()
+
     else:
         st.error("Please enter valid keys to start chatting.")
 
