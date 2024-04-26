@@ -28,37 +28,42 @@ async def semantic_route(api_key, route_endpoint, user_input):
         response_text += chunk
     return response_text
 
+# Re-implemented async_chat to include custom endpoints.
 
-# Asynchronously handle chat operations
 
-async def async_chat(openai_api_key, api_key, user_input, routes):
-   # encoder = CohereEncoder()
+async def async_chat(openai_api_key, api_key, user_input, routes, endpoint="llama-2-13b-chat"):
+    # Set API key environment variable at the beginning of the function, if not set globally
     os.environ["OPENAI_API_KEY"] = openai_api_key
+    print(f"routes in async_chat:{routes}")
+    print(f"endpoint chosen:{endpoint}")
+    # Assuming OpenAIEncoder and RouteLayer are defined and imported properly elsewhere
     encoder = OpenAIEncoder()
-
     rl = RouteLayer(encoder=encoder, routes=routes)
     route_choice = rl(user_input)
-    print(f"Route chosen: {route_choice}")
+    print(f"Route chosen: {route_choice.name}")
 
-    if route_choice.name == "math":
+    # Define specific endpoints for known route names
+    endpoint_map = {
+        "math": "llama-2-13b-chat",
+        "coding": "codellama-34b-instruct"
+    }
 
-        endpoint = "llama-2-13b-chat@anyscale"
-        response = await semantic_route(api_key, endpoint, user_input)
-        return response
-
-    elif route_choice.name == "coding":
-        # Use the correct endpoint for coding queries
-        endpoint = "codellama-34b-instruct@anyscale"
-        response = await semantic_route(api_key, endpoint, user_input)
-        return response
-
+    # Check if the route name is in the endpoint map, otherwise use the user-provided endpoint
+    if route_choice.name in endpoint_map:
+        chosen_endpoint = f"{endpoint_map[route_choice.name]}@anyscale"
     else:
-        endpoint = "llama-2-13b-chat@anyscale"
-        response = await semantic_route(api_key, endpoint, user_input)
-        return response
+        # Append "@anyscale" if not already included
+        if "@anyscale" not in endpoint:
+            endpoint += "@anyscale"
+        chosen_endpoint = endpoint
 
+    # Call the semantic route function with the chosen endpoint
+    response = await semantic_route(api_key, chosen_endpoint, user_input)
+    return response
 
 # Define routes function
+
+
 def defineRoutes():
     math_route = Route(
         name="math",
@@ -95,7 +100,10 @@ def customRoutes(route_name, route_examples, route_list):
         utterances=route_examples.split(','),
 
     )
+    print(f"custom route name:{custom_route.name}")
+    print(f"custom route utteraqnces:{custom_route.utterances}")
     route_list.append(custom_route)
+    print(f"Route list:{route_list}")
     return route_list
 # handles send
 
@@ -106,8 +114,10 @@ def run_async_coroutine(coroutine):
     return loop.run_until_complete(coroutine)
 
 
-def async_chat_wrapper(user_input, openai_api_key, unify_key, routes):
-    coroutine = async_chat(openai_api_key, unify_key, user_input, routes)
+def async_chat_wrapper(user_input, openai_api_key, unify_key, routes, endpoint="llama-2-13b-chat"):
+    # Pass the default endpoint if not provided
+    coroutine = async_chat(openai_api_key, unify_key,
+                           user_input, routes, endpoint)
     return run_async_coroutine(coroutine)
 
 
@@ -173,7 +183,7 @@ def main():
 
             with ThreadPoolExecutor() as executor:
                 future = executor.submit(
-                    async_chat_wrapper, user_input, st.session_state.openai_api_key, st.session_state.unify_key, routes)
+                    async_chat_wrapper, user_input, st.session_state.openai_api_key, st.session_state.unify_key, routes, selected_model)
                 response = future.result()
                 # Update the session state with the new messages
                 st.session_state.chat_history.append(("user", user_input))
