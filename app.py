@@ -121,6 +121,10 @@ def main():
         "gemma-2b-it", "gpt-4-turbo", "mistral-small", "mistral-large",
         "claude-3-haiku", "claude-3-opus", "claude-3-sonnet"
     ]
+    custom_route_name = st.sidebar.text_input(
+        "Enter the name of your custome route:")
+    custom_utterances = st.sidebar.text_input(
+        "Enter some examples to direct to this route:(seperate by comma)")
     selected_model = st.sidebar.selectbox("Select a model:", model_list)
 
     if openai_api_key and not openai_api_key.startswith('sk-'):
@@ -131,26 +135,32 @@ def main():
         st.session_state.openai_api_key = openai_api_key
         st.title("🤖💬 Streaming Router ChatBot")
 
-        if 'history' not in st.session_state:
-            st.session_state.history = []
+        # Initialize or update the chat history in session state
+        if 'chat_history' not in st.session_state:
+            st.session_state.chat_history = []
 
-        for message in st.session_state.history:
-            st.markdown(message, unsafe_allow_html=True)
+        # Display existing chat messages
+        messages_container = st.container()
+        for msg_type, msg_content in st.session_state.chat_history:
+            if msg_type == "user":
+                messages_container.chat_message("user").write(msg_content)
+            elif msg_type == "assistant":
+                messages_container.chat_message("assistant").write(msg_content)
 
-        user_input = st.text_input("Type your message here:", key="input")
+        # Chat input at the bottom of the page
+        user_input = st.chat_input("Say something", key="chat_input")
 
-        if st.button("Send") and user_input:
-            routes = defineRoutes()
+        if user_input:
+            routes = defineRoutes()  # Assuming defineRoutes is defined to handle routing logic
             with ThreadPoolExecutor() as executor:
                 future = executor.submit(
                     async_chat_wrapper, user_input, st.session_state.openai_api_key, st.session_state.unify_key, routes)
                 response = future.result()
-                st.session_state.history.append(
-                    f'<i class="fas fa-user"></i> {user_input}')
-                st.session_state.history.append(
-                    f'<i class="fas fa-robot"></i> {response}')
+                # Update the session state with the new messages
+                st.session_state.chat_history.append(("user", user_input))
+                st.session_state.chat_history.append(("assistant", response))
+                # Rerun the app to update the UI
                 st.experimental_rerun()
-
     else:
         st.error("Please enter valid keys to start chatting.")
 
