@@ -110,6 +110,18 @@ def main():
     st.sidebar.title("Configuration")
     unify_key = st.sidebar.text_input("Enter your UNIFY_KEY", type='password')
     openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password')
+    # Dropdown for model selection
+    model_list = [
+        "mixtral-8x7b-instruct-v0.1", "llama-2-70b-chat", "llama-2-13b-chat",
+        "mistral-7b-instruct-v0.2", "llama-2-7b-chat", "codellama-34b-instruct",
+        "gemma-7b-it", "mistral-7b-instruct-v0.1", "mixtral-8x22b-instruct-v0.1",
+        "codellama-13b-instruct", "codellama-7b-instruct", "yi-34b-chat",
+        "llama-3-8b-chat", "llama-3-70b-chat", "pplx-7b-chat", "mistral-medium",
+        "gpt-4", "pplx-70b-chat", "gpt-3.5-turbo", "deepseek-coder-33b-instruct",
+        "gemma-2b-it", "gpt-4-turbo", "mistral-small", "mistral-large",
+        "claude-3-haiku", "claude-3-opus", "claude-3-sonnet"
+    ]
+    selected_model = st.sidebar.selectbox("Select a model:", model_list)
 
     if openai_api_key and not openai_api_key.startswith('sk-'):
         st.sidebar.warning('Please enter a valid OpenAI API key!', icon='⚠️')
