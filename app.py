@@ -87,6 +87,16 @@ def defineRoutes():
     routes = [math_route, coding_route]
     return routes
 
+
+# Custom routes function
+def customRoutes(route_name, route_examples, route_list):
+    custom_route = Route(
+        name=route_name,
+        utterances=route_examples.split(','),
+
+    )
+    route_list.append(custom_route)
+    return route_list
 # handles send
 
 
@@ -121,11 +131,16 @@ def main():
         "gemma-2b-it", "gpt-4-turbo", "mistral-small", "mistral-large",
         "claude-3-haiku", "claude-3-opus", "claude-3-sonnet"
     ]
-    custom_route_name = st.sidebar.text_input(
-        "Enter the name of your custome route:")
-    custom_utterances = st.sidebar.text_input(
-        "Enter some examples to direct to this route:(seperate by comma)")
-    selected_model = st.sidebar.selectbox("Select a model:", model_list)
+
+    custom_element = st.sidebar.checkbox("Custom input?")
+
+    if custom_element:
+        custom_route_name = st.sidebar.text_input(
+            "Enter the name of your custom route:")
+        custom_utterances = st.sidebar.text_input(
+            "Enter some examples to direct to this route (separate by comma):")
+        selected_model = st.sidebar.selectbox(
+            "Select a model for your custom route:", model_list)
 
     if openai_api_key and not openai_api_key.startswith('sk-'):
         st.sidebar.warning('Please enter a valid OpenAI API key!', icon='⚠️')
@@ -152,6 +167,10 @@ def main():
 
         if user_input:
             routes = defineRoutes()  # Assuming defineRoutes is defined to handle routing logic
+            if custom_element:
+                routes = customRoutes(
+                    custom_route_name, custom_utterances, routes)
+
             with ThreadPoolExecutor() as executor:
                 future = executor.submit(
                     async_chat_wrapper, user_input, st.session_state.openai_api_key, st.session_state.unify_key, routes)
