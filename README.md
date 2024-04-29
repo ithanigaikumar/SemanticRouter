@@ -11,7 +11,9 @@ To set up the project, you will need to install several Python packages. You can
    pip install streamlit
    pip install -U semantic-router==0.0.34
    pip install unifyai
-   pip install openai
+   pip install transformers
+   pip install torch
+
 ```
 Make sure that each command completes successfully before proceeding to the next step. If you encounter any issues during the installation process, check your Python and pip versions, and ensure your environment is configured correctly.
 

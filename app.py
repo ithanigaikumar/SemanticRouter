@@ -6,10 +6,14 @@ from semantic_router import Route
 from getpass import getpass
 from semantic_router import RouteLayer
 from concurrent.futures import ThreadPoolExecutor
-from semantic_router.encoders import OpenAIEncoder
+from semantic_router.encoders.huggingface import HuggingFaceEncoder
 
-
+huggingface_url = "https://api-inference.huggingface.co/models/gpt2"
 # Routes to the appropriate endpoint
+huggingface_logo = "https://cdn-lfs.huggingface.co/repos/96/a2/96a2c8468c1546e660ac2609e49404b8588fcf5a748761fa72c154b2836b4c83/9cf16f4f32604eaf76dabbdf47701eea5a768ebcc7296acc1d1758181f71db73?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27hf-logo.png%3B+filename%3D%22hf-logo.png%22%3B&response-content-type=image%2Fpng&Expires=1714669014&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTcxNDY2OTAxNH19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2RuLWxmcy5odWdnaW5nZmFjZS5jby9yZXBvcy85Ni9hMi85NmEyYzg0NjhjMTU0NmU2NjBhYzI2MDllNDk0MDRiODU4OGZjZjVhNzQ4NzYxZmE3MmMxNTRiMjgzNmI0YzgzLzljZjE2ZjRmMzI2MDRlYWY3NmRhYmJkZjQ3NzAxZWVhNWE3NjhlYmNjNzI5NmFjYzFkMTc1ODE4MWY3MWRiNzM%7EcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj0qJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT0qIn1dfQ__&Signature=XlyzK%7EHZi9Vmf-w3gi8X7aNEFuV4m7qxNKtiKphVMpryDKpaZ708r1xZgMVn9tb56INExpW7gWQp9OWT1rsrcdhgB0T6WQiZvGQT4K9nl4eF8nglTJcQigmu8YOPDZqnBPOp%7E5IihQgm5-QYJfdxaMZT3JqDBsDRNiBhjj6GUHn7ye8QJu21dVsEqXL5ZU3qQUvh8Gdy%7EnPjip%7ET04mIzC0IEwPm3q7ZyA2BkeD-%7EL4LkWZ5wpsvejZQkoUU77Zklm1DcocZ8AZbRsejPshqbm%7E%7EGjhxmXHcz9Nu-AjBXDk3fnp11RDBRJlFwaTjOE9aPi8kXzL498vwUmcFzWynjg__&Key-Pair-Id=KVTP0A1DKRTAX"
+unify_logo = "https://raw.githubusercontent.com/unifyai/unifyai.github.io/main/img/externally_linked/logo.png?raw=true#gh-light-mode-only"
+
+
 async def semantic_route(api_key, route_endpoint, user_input):
     unify = AsyncUnify(
         api_key=api_key,
@@ -31,13 +35,16 @@ async def semantic_route(api_key, route_endpoint, user_input):
 # Re-implemented async_chat to include custom endpoints.
 
 
-async def async_chat(openai_api_key, api_key, user_input, routes, endpoint="llama-2-13b-chat"):
+async def async_chat(huggingface_apikey, api_key, user_input, routes, endpoint="llama-2-13b-chat"):
     # Set API key environment variable at the beginning of the function, if not set globally
-    os.environ["OPENAI_API_KEY"] = openai_api_key
+    os.environ["huggingface_apikey"] = huggingface_apikey
+    encoder = HuggingFaceEncoder(
+        huggingface_url=huggingface_url,
+        huggingface_api_key=huggingface_apikey,
+    )
     print(f"routes in async_chat:{routes}")
     print(f"endpoint chosen:{endpoint}")
     # Assuming OpenAIEncoder and RouteLayer are defined and imported properly elsewhere
-    encoder = OpenAIEncoder()
     rl = RouteLayer(encoder=encoder, routes=routes)
     route_choice = rl(user_input)
     print(f"Route chosen: {route_choice.name}")
@@ -114,23 +121,31 @@ def run_async_coroutine(coroutine):
     return loop.run_until_complete(coroutine)
 
 
-def async_chat_wrapper(user_input, openai_api_key, unify_key, routes, endpoint="llama-2-13b-chat"):
+def async_chat_wrapper(user_input, huggingface_apikey, unify_key, routes, endpoint="llama-2-13b-chat"):
     # Pass the default endpoint if not provided
-    coroutine = async_chat(openai_api_key, unify_key,
+    coroutine = async_chat(huggingface_apikey, unify_key,
                            user_input, routes, endpoint)
     return run_async_coroutine(coroutine)
 
 
 def main():
-    # Assuming that 'defineRoutes' and 'async_chat_wrapper' are defined elsewhere
-
-    # Include Font Awesome
+    # Include Font Awesome for styling
     st.markdown('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">', unsafe_allow_html=True)
-
-    st.sidebar.title("Configuration")
+    logos_html = f"""
+    <div style='display: flex; align-items: center; font-size: 26px; font-weight: bold;'>
+        <img src='{huggingface_logo}' style='height: 40px; margin-right: 10px;' alt='HuggingFace Logo'/>
+        Configuration
+        <img src='{unify_logo}' style='height: 40px; margin-right: 10px;' alt='Unify Logo'/>
+        
+    </div>
+    """
+    # Using markdown to display what acts as a sidebar title with logos
+    st.sidebar.markdown(logos_html, unsafe_allow_html=True)
     unify_key = st.sidebar.text_input("Enter your UNIFY_KEY", type='password')
-    openai_api_key = st.sidebar.text_input('OpenAI API Key', type='password')
-    # Dropdown for model selection
+    huggingface_apikey = st.sidebar.text_input(
+        'Enter your HUGGING_FACE Key', type='password')
+
+    # Dropdown for model selection, listing all available models
     model_list = [
         "mixtral-8x7b-instruct-v0.1", "llama-2-70b-chat", "llama-2-13b-chat",
         "mistral-7b-instruct-v0.2", "llama-2-7b-chat", "codellama-34b-instruct",
@@ -141,23 +156,21 @@ def main():
         "gemma-2b-it", "gpt-4-turbo", "mistral-small", "mistral-large",
         "claude-3-haiku", "claude-3-opus", "claude-3-sonnet"
     ]
+    selected_model = st.sidebar.selectbox(
+        "Select a model for a custom route:", model_list)
 
     custom_element = st.sidebar.checkbox("Custom input?")
-
+    custom_route_name = ""
+    custom_utterances = ""
     if custom_element:
         custom_route_name = st.sidebar.text_input(
             "Enter the name of your custom route:")
         custom_utterances = st.sidebar.text_input(
             "Enter some examples to direct to this route (separate by comma):")
-        selected_model = st.sidebar.selectbox(
-            "Select a model for your custom route:", model_list)
 
-    if openai_api_key and not openai_api_key.startswith('sk-'):
-        st.sidebar.warning('Please enter a valid OpenAI API key!', icon='⚠️')
-
-    if unify_key and openai_api_key.startswith('sk-'):
+    if huggingface_apikey and unify_key:
         st.session_state.unify_key = unify_key
-        st.session_state.openai_api_key = openai_api_key
+        st.session_state.huggingface_apikey = huggingface_apikey
         st.title("🤖💬 Streaming Router ChatBot")
 
         # Initialize or update the chat history in session state
@@ -176,20 +189,20 @@ def main():
         user_input = st.chat_input("Say something", key="chat_input")
 
         if user_input:
-            routes = defineRoutes()  # Assuming defineRoutes is defined to handle routing logic
+            routes = defineRoutes()  # Load or define the routes applicable to this session
             if custom_element:
+                # Adjust routes based on custom inputs
                 routes = customRoutes(
                     custom_route_name, custom_utterances, routes)
-
             with ThreadPoolExecutor() as executor:
                 future = executor.submit(
-                    async_chat_wrapper, user_input, st.session_state.openai_api_key, st.session_state.unify_key, routes, selected_model)
+                    async_chat_wrapper, user_input, st.session_state.huggingface_apikey, st.session_state.unify_key, routes, selected_model)
                 response = future.result()
-                # Update the session state with the new messages
                 st.session_state.chat_history.append(("user", user_input))
                 st.session_state.chat_history.append(("assistant", response))
-                # Rerun the app to update the UI
-                st.experimental_rerun()
+                st.rerun()
+        else:
+            st.warning("Type something to start chatting.")
     else:
         st.error("Please enter valid keys to start chatting.")
 
