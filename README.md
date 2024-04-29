@@ -1,6 +1,5 @@
 # SemanticRouter Application
-
-This guide provides step-by-step instructions for setting up and launching the application. Follow the sections below to get started.
+This guide provides step-by-step instructions for setting up and launching the application. Access using the following URL: [https://semanticrouter-vsokiaomurxjrxzcasqff4.streamlit.app/](https://semanticrouter-vsokiaomurxjrxzcasqff4.streamlit.app/) or follow the sections below to get started.
 
 ## Project Setup
 
