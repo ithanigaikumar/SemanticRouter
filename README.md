@@ -22,7 +22,7 @@ Make sure that each command completes successfully before proceeding to the next
     
     streamlit run app.py
 
-Once all necessary packages are installed, you can launch the application using Streamlit. To start the app, run the following command in your terminal where your app.py script is located.This command will start the Streamlit server and open the application in your default web browser. You can interact with the app directly from your browser.
+Once all necessary packages are installed, you can launch the application using Streamlit. To start the app, run the following command in your terminal where your app.py script is located.This command will start the Streamlit server and open the application in your default web browser. You can interact with the app directly from your browser.The route chosen will be printed in the terminal.
 
   
 ## Additional Information

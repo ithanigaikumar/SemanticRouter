@@ -171,7 +171,7 @@ def main():
     if huggingface_apikey and unify_key:
         st.session_state.unify_key = unify_key
         st.session_state.huggingface_apikey = huggingface_apikey
-        st.title("🤖💬 Streaming Router ChatBot")
+        st.title("🤖💬 Semantic Router ChatBot")
 
         # Initialize or update the chat history in session state
         if 'chat_history' not in st.session_state:
