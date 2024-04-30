@@ -8,7 +8,7 @@ from semantic_router import RouteLayer
 from concurrent.futures import ThreadPoolExecutor
 from semantic_router.encoders.huggingface import HuggingFaceEncoder
 
-huggingface_url = "https://api-inference.huggingface.co/models/gpt2"
+# huggingface_url = "https://api-inference.huggingface.co/models/gpt2"
 # Routes to the appropriate endpoint
 huggingface_logo = "https://cdn-lfs.huggingface.co/repos/96/a2/96a2c8468c1546e660ac2609e49404b8588fcf5a748761fa72c154b2836b4c83/9cf16f4f32604eaf76dabbdf47701eea5a768ebcc7296acc1d1758181f71db73?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27hf-logo.png%3B+filename%3D%22hf-logo.png%22%3B&response-content-type=image%2Fpng&Expires=1714669014&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTcxNDY2OTAxNH19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2RuLWxmcy5odWdnaW5nZmFjZS5jby9yZXBvcy85Ni9hMi85NmEyYzg0NjhjMTU0NmU2NjBhYzI2MDllNDk0MDRiODU4OGZjZjVhNzQ4NzYxZmE3MmMxNTRiMjgzNmI0YzgzLzljZjE2ZjRmMzI2MDRlYWY3NmRhYmJkZjQ3NzAxZWVhNWE3NjhlYmNjNzI5NmFjYzFkMTc1ODE4MWY3MWRiNzM%7EcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj0qJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT0qIn1dfQ__&Signature=XlyzK%7EHZi9Vmf-w3gi8X7aNEFuV4m7qxNKtiKphVMpryDKpaZ708r1xZgMVn9tb56INExpW7gWQp9OWT1rsrcdhgB0T6WQiZvGQT4K9nl4eF8nglTJcQigmu8YOPDZqnBPOp%7E5IihQgm5-QYJfdxaMZT3JqDBsDRNiBhjj6GUHn7ye8QJu21dVsEqXL5ZU3qQUvh8Gdy%7EnPjip%7ET04mIzC0IEwPm3q7ZyA2BkeD-%7EL4LkWZ5wpsvejZQkoUU77Zklm1DcocZ8AZbRsejPshqbm%7E%7EGjhxmXHcz9Nu-AjBXDk3fnp11RDBRJlFwaTjOE9aPi8kXzL498vwUmcFzWynjg__&Key-Pair-Id=KVTP0A1DKRTAX"
 unify_logo = "https://raw.githubusercontent.com/unifyai/unifyai.github.io/main/img/externally_linked/logo.png?raw=true#gh-light-mode-only"
@@ -38,10 +38,7 @@ async def semantic_route(api_key, route_endpoint, user_input):
 async def async_chat(huggingface_apikey, api_key, user_input, routes, endpoint="llama-2-13b-chat"):
     # Set API key environment variable at the beginning of the function, if not set globally
     os.environ["huggingface_apikey"] = huggingface_apikey
-    encoder = HuggingFaceEncoder(
-        huggingface_url=huggingface_url,
-        huggingface_api_key=huggingface_apikey,
-    )
+    encoder = HuggingFaceEncoder()
     print(f"routes in async_chat:{routes}")
     print(f"endpoint chosen:{endpoint}")
     # Assuming OpenAIEncoder and RouteLayer are defined and imported properly elsewhere
@@ -136,7 +133,7 @@ def main():
         <img src='{huggingface_logo}' style='height: 40px; margin-right: 10px;' alt='HuggingFace Logo'/>
         Configuration
         <img src='{unify_logo}' style='height: 40px; margin-right: 10px;' alt='Unify Logo'/>
-        
+
     </div>
     """
     # Using markdown to display what acts as a sidebar title with logos
