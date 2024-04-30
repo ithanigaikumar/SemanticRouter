@@ -76,18 +76,59 @@ def defineRoutes():
             "how to calculate the derivative",
             "mathematical proofs",
             "how do you find the percentage of this number",
-            "how do you solve the determinant of a 2x2 matrix?"
+            "how do you solve the determinant of a 2x2 matrix?",
+            "what is 2 + 2",
+            "how to expand (x+1)^3",
+            "calculate the area of a circle with radius 5",
+            "what is the Pythagorean theorem",
+            "find the volume of a cone with radius 3 and height 5",
+            "simplify the square root of 144",
+            "solve the system of equations 2x + 3y = 5 and 4x - y = 2",
+            "what is the slope of the line passing through points (2,3) and (5,7)",
+            "how to factorize x^2 - 5x + 6",
+            "explain Euler's formula",
+            "calculate the cosine of 45 degrees",
+            "what are prime numbers up to 100",
+            "solve the quadratic equation x^2 - 4x + 4 = 0",
+            "explain the concept of logarithms",
+            "calculate the sum of an arithmetic series 3 + 7 + 11 + ... up to n terms",
+            "find the limits as x approaches 2 of the function (x^2 - 4)/(x-2)",
+            "what is the binomial theorem",
+            "how to compute compound interest for an initial investment of 1000 dollars at 5% per year for 10 years",
+            "derive the formula for the circumference of a circle"
         ],
     )
 
     coding_route = Route(
         name="coding",
         utterances=[
-            "how to code a for loop in Python",
-            "explain the use of classes in Java",
-            "what is recursion in programming",
-            "how do i optimise this problem using hash tables",
-            "suggest a more efficient data structure for this problem"
+            "write a Python program to print the factorial of a number",
+            "show how to reverse a string in JavaScript",
+            "Implement a queue data structure in python"
+            "Make this code more efficient using a hash table"
+            "explain how inheritance works in Java",
+            "create a function in C++ to check if a number is prime",
+            "write a SQL query to find all employees earning more than $50,000",
+            "demonstrate how to sort a list in descending order in Python",
+            "explain the difference between let and var in JavaScript",
+            "write a Ruby script to count the number of vowels in a string",
+            "show how to connect to a MySQL database with PHP",
+            "create a simple HTML form with a POST method",
+            "write a JavaScript function to change a web page background color",
+            "develop a Python Flask app with one route",
+            "explain recursion with an example in C#",
+            "write a program in Java that prints the Fibonacci sequence",
+            "demonstrate a simple CSS grid layout",
+            "create a React component that fetches and displays an API data",
+            "write a Python script to read a CSV file and print each row",
+            "how to implement a binary search algorithm in Java",
+            "write a C program to merge two sorted arrays",
+            "explain the concept of closures in JavaScript",
+            "write an SQL query to update a record",
+            "show how to use decorators in Python",
+            "demonstrate error handling in Node.js using express",
+            "write a function in Swift to calculate the sum of an array",
+            "explain the use of async/await in JavaScript"
         ],
     )
 
