@@ -17,22 +17,21 @@ unify_logo = "https://raw.githubusercontent.com/unifyai/unifyai.github.io/main/i
 async def semantic_route(api_key, route_endpoint, user_input):
     unify = AsyncUnify(
         api_key=api_key,
-        # Use the correct endpoint for math queries
         endpoint=route_endpoint
     )
-   # Generate the response using Unify
+    # Generate the response using Unify
     response = await unify.generate(user_prompt=user_input)
-   # If response is a string and not a stream, handle it directly
+    # If response is a string and not a stream, handle it directly
     if isinstance(response, str):
         return response
 
-   # If response is a stream, then iterate over it
+    # If response is a stream, then iterate over it
     response_text = ''
     async for chunk in response:
         response_text += chunk
     return response_text
 
-# Re-implemented async_chat to include custom endpoints.
+# Re-implemented async_chat to include custom endpoints and response information with styling.
 
 
 async def async_chat(huggingface_apikey, api_key, user_input, routes, endpoint="llama-2-13b-chat"):
@@ -54,17 +53,17 @@ async def async_chat(huggingface_apikey, api_key, user_input, routes, endpoint="
 
     # Check if the route name is in the endpoint map, otherwise use the user-provided endpoint
     if route_choice.name in endpoint_map:
-        chosen_endpoint = f"{endpoint_map[route_choice.name]}@anyscale"
+        chosen_endpoint = endpoint_map[route_choice.name]
     else:
-        # Append "@anyscale" if not already included
-        if "@anyscale" not in endpoint:
-            endpoint += "@anyscale"
-        chosen_endpoint = endpoint
+        # Strip any "@anyscale" from the endpoint
+        chosen_endpoint = endpoint.rstrip("@anyscale")
 
     # Call the semantic route function with the chosen endpoint
-    response = await semantic_route(api_key, chosen_endpoint, user_input)
-    return response
+    response = await semantic_route(api_key, f"{chosen_endpoint}@anyscale", user_input)
 
+    response_info = f"🚀 <b>Routed to: {route_choice.name}, {chosen_endpoint} was used to generate this response:</b> {response}"
+
+    return response_info
 # Define routes function
 
 
@@ -115,13 +114,20 @@ def customRoutes(route_name, route_examples, route_list):
 def run_async_coroutine(coroutine):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    return loop.run_until_complete(coroutine)
+    try:
+        result = loop.run_until_complete(coroutine)
+        # This prints the actual result
+        print(f"Coroutine completed with result: {result}")
+        return result
+    finally:
+        loop.close()
 
 
 def async_chat_wrapper(user_input, huggingface_apikey, unify_key, routes, endpoint="llama-2-13b-chat"):
     # Pass the default endpoint if not provided
     coroutine = async_chat(huggingface_apikey, unify_key,
                            user_input, routes, endpoint)
+    print(f"acynch chat markdown: {coroutine}")
     return run_async_coroutine(coroutine)
 
 
@@ -133,7 +139,6 @@ def main():
         <img src='{huggingface_logo}' style='height: 40px; margin-right: 10px;' alt='HuggingFace Logo'/>
         Configuration
         <img src='{unify_logo}' style='height: 40px; margin-right: 10px;' alt='Unify Logo'/>
-
     </div>
     """
     # Using markdown to display what acts as a sidebar title with logos
@@ -142,34 +147,45 @@ def main():
     huggingface_apikey = st.sidebar.text_input(
         'Enter your HUGGING_FACE Key', type='password')
 
-    # Dropdown for model selection, listing all available models
-    model_list = [
-        "mixtral-8x7b-instruct-v0.1", "llama-2-70b-chat", "llama-2-13b-chat",
-        "mistral-7b-instruct-v0.2", "llama-2-7b-chat", "codellama-34b-instruct",
-        "gemma-7b-it", "mistral-7b-instruct-v0.1", "mixtral-8x22b-instruct-v0.1",
-        "codellama-13b-instruct", "codellama-7b-instruct", "yi-34b-chat",
-        "llama-3-8b-chat", "llama-3-70b-chat", "pplx-7b-chat", "mistral-medium",
-        "gpt-4", "pplx-70b-chat", "gpt-3.5-turbo", "deepseek-coder-33b-instruct",
-        "gemma-2b-it", "gpt-4-turbo", "mistral-small", "mistral-large",
-        "claude-3-haiku", "claude-3-opus", "claude-3-sonnet"
-    ]
-    selected_model = st.sidebar.selectbox(
-        "Select a model for a custom route:", model_list)
-
-    custom_element = st.sidebar.checkbox("Custom input?")
-    custom_route_name = ""
-    custom_utterances = ""
-    if custom_element:
-        custom_route_name = st.sidebar.text_input(
-            "Enter the name of your custom route:")
-        custom_utterances = st.sidebar.text_input(
-            "Enter some examples to direct to this route (separate by comma):")
-
-    if huggingface_apikey and unify_key:
+    # Set keys in session state after they are entered
+    if unify_key and huggingface_apikey:
         st.session_state.unify_key = unify_key
         st.session_state.huggingface_apikey = huggingface_apikey
-        st.title("🤖💬 Semantic Router ChatBot")
 
+    if 'huggingface_apikey' in st.session_state and 'unify_key' in st.session_state:
+        # Display Pre-defined Routes
+        endpoint_map = {
+            "math": "llama-2-13b-chat",
+            "coding": "codellama-34b-instruct"
+        }
+        st.sidebar.title("Pre-defined Routes and Corresponding Models:")
+        for route, model in endpoint_map.items():
+            st.sidebar.text(f"{route}: {model}")
+
+        # Dropdown for model selection, listing all available models
+        model_list = [
+            "mixtral-8x7b-instruct-v0.1", "llama-2-70b-chat", "llama-2-13b-chat",
+            "mistral-7b-instruct-v0.2", "llama-2-7b-chat", "codellama-34b-instruct",
+            "gemma-7b-it", "mistral-7b-instruct-v0.1", "mixtral-8x22b-instruct-v0.1",
+            "codellama-13b-instruct", "codellama-7b-instruct", "yi-34b-chat",
+            "llama-3-8b-chat", "llama-3-70b-chat", "pplx-7b-chat", "mistral-medium",
+            "gpt-4", "pplx-70b-chat", "gpt-3.5-turbo", "deepseek-coder-33b-instruct",
+            "gemma-2b-it", "gpt-4-turbo", "mistral-small", "mistral-large",
+            "claude-3-haiku", "claude-3-opus", "claude-3-sonnet"
+        ]
+        selected_model = st.sidebar.selectbox(
+            "Select a model for a custom route:", model_list)
+
+        custom_element = st.sidebar.checkbox("Create custom route?")
+        custom_route_name = ""
+        custom_utterances = ""
+        if custom_element:
+            custom_route_name = st.sidebar.text_input(
+                "Enter the name of your custom route:")
+            custom_utterances = st.sidebar.text_input(
+                "Enter some examples to direct to this route (separate by comma):")
+
+        st.title("🤖💬 Semantic Router ChatBot")
         # Initialize or update the chat history in session state
         if 'chat_history' not in st.session_state:
             st.session_state.chat_history = []
@@ -178,9 +194,12 @@ def main():
         messages_container = st.container()
         for msg_type, msg_content in st.session_state.chat_history:
             if msg_type == "user":
-                messages_container.chat_message("user").write(msg_content)
+                # Assuming user messages don't contain HTML
+                messages_container.write(f"User: {msg_content}")
             elif msg_type == "assistant":
-                messages_container.chat_message("assistant").write(msg_content)
+                # Render assistant messages as HTML
+                messages_container.markdown(
+                    msg_content, unsafe_allow_html=True)
 
         # Chat input at the bottom of the page
         user_input = st.chat_input("Say something", key="chat_input")
@@ -200,6 +219,8 @@ def main():
                 future = executor.submit(
                     async_chat_wrapper, user_input, st.session_state.huggingface_apikey, st.session_state.unify_key, routes, selected_model)
                 response = future.result()
+                # Use st.markdown to render the HTML content
+                st.markdown(response, unsafe_allow_html=True)
                 st.session_state.chat_history.append(("user", user_input))
                 st.session_state.chat_history.append(("assistant", response))
                 st.experimental_rerun()
