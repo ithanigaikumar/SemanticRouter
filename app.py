@@ -185,6 +185,11 @@ def main():
         # Chat input at the bottom of the page
         user_input = st.chat_input("Say something", key="chat_input")
 
+        # Reset button to clear chat history
+        if st.button("Reset Chat"):
+            st.session_state.chat_history = []
+            st.experimental_rerun()
+
         if user_input:
             routes = defineRoutes()  # Load or define the routes applicable to this session
             if custom_element:
@@ -197,7 +202,7 @@ def main():
                 response = future.result()
                 st.session_state.chat_history.append(("user", user_input))
                 st.session_state.chat_history.append(("assistant", response))
-                st.rerun()
+                st.experimental_rerun()
         else:
             st.warning("Type something to start chatting.")
     else:
