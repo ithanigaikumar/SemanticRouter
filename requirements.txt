@@ -1,6 +1,9 @@
 streamlit
-openai
-langchain
-
+semantic-router==0.0.34
 unifyai
-semantic-router==0.0.32
+transformers
+torch
+
+
+
+
