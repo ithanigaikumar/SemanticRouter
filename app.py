@@ -2,6 +2,7 @@ import streamlit as st
 import asyncio
 from unify import AsyncUnify
 import os
+import json
 from semantic_router import Route
 from getpass import getpass
 from semantic_router import RouteLayer
@@ -12,6 +13,35 @@ from semantic_router.encoders.huggingface import HuggingFaceEncoder
 # Routes to the appropriate endpoint
 huggingface_logo = "https://cdn-lfs.huggingface.co/repos/96/a2/96a2c8468c1546e660ac2609e49404b8588fcf5a748761fa72c154b2836b4c83/9cf16f4f32604eaf76dabbdf47701eea5a768ebcc7296acc1d1758181f71db73?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27hf-logo.png%3B+filename%3D%22hf-logo.png%22%3B&response-content-type=image%2Fpng&Expires=1714669014&Policy=eyJTdGF0ZW1lbnQiOlt7IkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTcxNDY2OTAxNH19LCJSZXNvdXJjZSI6Imh0dHBzOi8vY2RuLWxmcy5odWdnaW5nZmFjZS5jby9yZXBvcy85Ni9hMi85NmEyYzg0NjhjMTU0NmU2NjBhYzI2MDllNDk0MDRiODU4OGZjZjVhNzQ4NzYxZmE3MmMxNTRiMjgzNmI0YzgzLzljZjE2ZjRmMzI2MDRlYWY3NmRhYmJkZjQ3NzAxZWVhNWE3NjhlYmNjNzI5NmFjYzFkMTc1ODE4MWY3MWRiNzM%7EcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj0qJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT0qIn1dfQ__&Signature=XlyzK%7EHZi9Vmf-w3gi8X7aNEFuV4m7qxNKtiKphVMpryDKpaZ708r1xZgMVn9tb56INExpW7gWQp9OWT1rsrcdhgB0T6WQiZvGQT4K9nl4eF8nglTJcQigmu8YOPDZqnBPOp%7E5IihQgm5-QYJfdxaMZT3JqDBsDRNiBhjj6GUHn7ye8QJu21dVsEqXL5ZU3qQUvh8Gdy%7EnPjip%7ET04mIzC0IEwPm3q7ZyA2BkeD-%7EL4LkWZ5wpsvejZQkoUU77Zklm1DcocZ8AZbRsejPshqbm%7E%7EGjhxmXHcz9Nu-AjBXDk3fnp11RDBRJlFwaTjOE9aPi8kXzL498vwUmcFzWynjg__&Key-Pair-Id=KVTP0A1DKRTAX"
 unify_logo = "https://raw.githubusercontent.com/unifyai/unifyai.github.io/main/img/externally_linked/logo.png?raw=true#gh-light-mode-only"
+
+# readfiles
+
+
+def read_quotes(filename):
+    with open(filename, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+        data = [json.loads(line.strip()) for line in lines]
+        return data
+
+
+def read_json(filename):
+    with open(filename, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+    return data
+
+
+# utterances for maths
+filename = "train.jsonl"
+list_to_iterate = read_quotes(filename)
+res_math = [item["question"] for item in list_to_iterate]
+
+
+# utterances for coding
+filename_code = "glaive_code_assistant_v2.json"
+data = read_json(filename_code)
+res_code = []
+for object in data:
+    res_code.append(object["question"])  # Access "question" field directly
 
 
 async def semantic_route(api_key, route_endpoint, user_input):
@@ -38,12 +68,12 @@ async def async_chat(huggingface_apikey, api_key, user_input, routes, endpoint="
     # Set API key environment variable at the beginning of the function, if not set globally
     os.environ["huggingface_apikey"] = huggingface_apikey
     encoder = HuggingFaceEncoder()
-    print(f"routes in async_chat:{routes}")
-    print(f"endpoint chosen:{endpoint}")
+    # print(f"routes in async_chat:{routes}")
+    # print(f"endpoint chosen:{endpoint}")
     # Assuming OpenAIEncoder and RouteLayer are defined and imported properly elsewhere
     rl = RouteLayer(encoder=encoder, routes=routes)
     route_choice = rl(user_input)
-    print(f"Route chosen: {route_choice.name}")
+    # print(f"Route chosen: {route_choice.name}")
 
     # Define specific endpoints for known route names
     endpoint_map = {
@@ -61,75 +91,48 @@ async def async_chat(huggingface_apikey, api_key, user_input, routes, endpoint="
     # Call the semantic route function with the chosen endpoint
     response = await semantic_route(api_key, f"{chosen_endpoint}@anyscale", user_input)
 
-    response_info = f"🚀 <b>Routed to: {route_choice.name}, {chosen_endpoint} was used to generate this response:</b> {response}"
+    response_info = f"🚀 Routed to: {route_choice.name}, {chosen_endpoint} was used to generate this response:🚀 {response}"
 
     return response_info
 # Define routes function
 
+additional_utterances = ["solve for x in the equation",
+                         "what is the integral of",
+                         "how to calculate the derivative",
+                         "mathematical proofs",
+                         "how do you find the percentage of this number",
+                         "how do you solve the determinant of a 2x2 matrix?",
+                         "what is 2 + 2",
+                         "how to expand (x+1)^3",
+                         "calculate the area of a circle with radius 5",
+                         "what is the Pythagorean theorem",
+                         "find the volume of a cone with radius 3 and height 5",
+                         "simplify the square root of 144",
+                         "solve the system of equations 2x + 3y = 5 and 4x - y = 2",
+                         "what is the slope of the line passing through points (2,3) and (5,7)",
+                         "how to factorize x^2 - 5x + 6",
+                         "explain Euler's formula",
+                         "calculate the cosine of 45 degrees",
+                         "what are prime numbers up to 100",
+                         "solve the quadratic equation x^2 - 4x + 4 = 0",
+                         "explain the concept of logarithms",
+                         "calculate the sum of an arithmetic series 3 + 7 + 11 + ... up to n terms",
+                         "find the limits as x approaches 2 of the function (x^2 - 4)/(x-2)",
+                         "what is the binomial theorem",
+                         "how to compute compound interest for an initial investment of 1000 dollars at 5% per year for 10 years",
+                         "derive the formula for the circumference of a circle"]
+
 
 def defineRoutes():
+    res_math.extend(additional_utterances)
     math_route = Route(
         name="math",
-        utterances=[
-            "solve for x in the equation",
-            "what is the integral of",
-            "how to calculate the derivative",
-            "mathematical proofs",
-            "how do you find the percentage of this number",
-            "how do you solve the determinant of a 2x2 matrix?",
-            "what is 2 + 2",
-            "how to expand (x+1)^3",
-            "calculate the area of a circle with radius 5",
-            "what is the Pythagorean theorem",
-            "find the volume of a cone with radius 3 and height 5",
-            "simplify the square root of 144",
-            "solve the system of equations 2x + 3y = 5 and 4x - y = 2",
-            "what is the slope of the line passing through points (2,3) and (5,7)",
-            "how to factorize x^2 - 5x + 6",
-            "explain Euler's formula",
-            "calculate the cosine of 45 degrees",
-            "what are prime numbers up to 100",
-            "solve the quadratic equation x^2 - 4x + 4 = 0",
-            "explain the concept of logarithms",
-            "calculate the sum of an arithmetic series 3 + 7 + 11 + ... up to n terms",
-            "find the limits as x approaches 2 of the function (x^2 - 4)/(x-2)",
-            "what is the binomial theorem",
-            "how to compute compound interest for an initial investment of 1000 dollars at 5% per year for 10 years",
-            "derive the formula for the circumference of a circle"
-        ],
+        utterances=res_math
     )
 
     coding_route = Route(
         name="coding",
-        utterances=[
-            "write a Python program to print the factorial of a number",
-            "show how to reverse a string in JavaScript",
-            "Implement a queue data structure in python"
-            "Make this code more efficient using a hash table"
-            "explain how inheritance works in Java",
-            "create a function in C++ to check if a number is prime",
-            "write a SQL query to find all employees earning more than $50,000",
-            "demonstrate how to sort a list in descending order in Python",
-            "explain the difference between let and var in JavaScript",
-            "write a Ruby script to count the number of vowels in a string",
-            "show how to connect to a MySQL database with PHP",
-            "create a simple HTML form with a POST method",
-            "write a JavaScript function to change a web page background color",
-            "develop a Python Flask app with one route",
-            "explain recursion with an example in C#",
-            "write a program in Java that prints the Fibonacci sequence",
-            "demonstrate a simple CSS grid layout",
-            "create a React component that fetches and displays an API data",
-            "write a Python script to read a CSV file and print each row",
-            "how to implement a binary search algorithm in Java",
-            "write a C program to merge two sorted arrays",
-            "explain the concept of closures in JavaScript",
-            "write an SQL query to update a record",
-            "show how to use decorators in Python",
-            "demonstrate error handling in Node.js using express",
-            "write a function in Swift to calculate the sum of an array",
-            "explain the use of async/await in JavaScript"
-        ],
+        utterances=res_code,
     )
 
     # List of all routes
@@ -144,10 +147,7 @@ def customRoutes(route_name, route_examples, route_list):
         utterances=route_examples.split(','),
 
     )
-    print(f"custom route name:{custom_route.name}")
-    print(f"custom route utteraqnces:{custom_route.utterances}")
     route_list.append(custom_route)
-    print(f"Route list:{route_list}")
     return route_list
 # handles send
 
@@ -158,7 +158,7 @@ def run_async_coroutine(coroutine):
     try:
         result = loop.run_until_complete(coroutine)
         # This prints the actual result
-        print(f"Coroutine completed with result: {result}")
+        # print(f"Coroutine completed with result: {result}")
         return result
     finally:
         loop.close()
@@ -168,7 +168,7 @@ def async_chat_wrapper(user_input, huggingface_apikey, unify_key, routes, endpoi
     # Pass the default endpoint if not provided
     coroutine = async_chat(huggingface_apikey, unify_key,
                            user_input, routes, endpoint)
-    print(f"acynch chat markdown: {coroutine}")
+    # print(f"acynch chat markdown: {coroutine}")
     return run_async_coroutine(coroutine)
 
 
