@@ -17,31 +17,15 @@ unify_logo = "https://raw.githubusercontent.com/unifyai/unifyai.github.io/main/i
 # readfiles
 
 
-def read_quotes(filename):
-    with open(filename, 'r', encoding='utf-8') as file:
-        lines = file.readlines()
-        data = [json.loads(line.strip()) for line in lines]
-        return data
-
-
-def read_json(filename):
+def load_from_json(filename):
     with open(filename, 'r', encoding='utf-8') as file:
         data = json.load(file)
     return data
 
 
-# utterances for maths
-filename = "train.jsonl"
-list_to_iterate = read_quotes(filename)
-res_math = [item["question"] for item in list_to_iterate]
-
-
-# utterances for coding
-filename_code = "glaive_code_assistant_v2.json"
-data = read_json(filename_code)
-res_code = []
-for object in data:
-    res_code.append(object["question"])  # Access "question" field directly
+# Now you can load this data in any other file
+res_math = load_from_json('questionsmaths.json')
+res_code = load_from_json("questionscode.json")
 
 
 async def semantic_route(api_key, route_endpoint, user_input):
