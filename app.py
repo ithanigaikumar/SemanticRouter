@@ -53,15 +53,13 @@ async def semantic_route(api_key, route_endpoint, user_input):
         logging.debug("Received a direct response from the API")
         return response
 
-    # If response is a stream, then iterate over it
+    # If response is a stream, then use st.write_stream
     logging.debug("Processing response stream")
-    response_text = ''
-    async for chunk in response:
-        response_text += chunk
-    logging.debug(
-        f"Completed assembly of response text for input: {user_input}")
-    return response_text
 
+    async def response_stream():
+        async for chunk in response:
+            yield chunk
+    return st.write_stream(response_stream())
 # Re-implemented async_chat to include custom endpoints and response information with styling.
 
 
@@ -170,10 +168,8 @@ def run_async_coroutine(coroutine):
 
 
 def async_chat_wrapper(user_input, huggingface_apikey, unify_key, routes, endpoint="llama-2-13b-chat"):
-    # Pass the default endpoint if not provided
     coroutine = async_chat(huggingface_apikey, unify_key,
                            user_input, routes, endpoint)
-    # print(f"acynch chat markdown: {coroutine}")
     return run_async_coroutine(coroutine)
 
 
