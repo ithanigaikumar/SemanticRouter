@@ -227,7 +227,7 @@ def main():
                 "Enter the name of your custom route:")
             custom_utterances = st.sidebar.text_input(
                 "Enter some examples to direct to this route (separate by comma):")
-        st.title("🤖💬 Streaming Router ChatBot")
+        st.title("🤖💬 Semantic Router ChatBot")
 
         # Initialize or update the chat history in session state
         if 'chat_history' not in st.session_state:
