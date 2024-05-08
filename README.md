@@ -5,7 +5,7 @@ This streamlit application dynamically routes user queries to the most appropria
 
 
 # Repository and deployment
-Access using the following URL: [https://semanticrouter-vsokiaomurxjrxzcasqff4.streamlit.app/](https://semanticrouter-vsokiaomurxjrxzcasqff4.streamlit.app/) or follow the sections below to get started.
+Access using the following URL: [https://semanticrouterchatbot.streamlit.app/](https://semanticrouterchatbot.streamlit.app/) or follow the sections below to get started.
 Fork from this respository:[https://github.com/ithanigaikumar/SemanticRouter]
 To set up the project, you will need to install several Python packages. You can do this using pip, Python's package installer. Execute the following commands in your terminal or command prompt to install the required packages.
 
