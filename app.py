@@ -70,8 +70,8 @@ async def async_chat(huggingface_apikey, api_key, user_input, routes, endpoint="
     # Assuming OpenAIEncoder and RouteLayer are defined and imported properly elsewhere
     rl = RouteLayer(encoder=encoder, routes=routes)
     updated_thresholds = {
-        'math': 0.08080808080808081,
-        'coding': 0.020202020202020204
+        'math':  0.19191919191919193,
+        'coding': 0.21
     }
 
     print(f"routes in async_chat:{routes}")
@@ -280,6 +280,11 @@ def main():
                 messages_container.chat_message("user").write(msg_content)
             elif msg_type == "assistant":
                 messages_container.chat_message("assistant").write(msg_content)
+
+         # Button to reset the chat history
+        if st.button("Reset Chat"):
+            st.session_state.chat_history = []  # Clear the chat history
+            st.experimental_rerun()  # Rerun the app to update the UI
 
         # Chat input at the bottom of the page
         user_input = st.chat_input("Say something", key="chat_input")
