@@ -1,7 +1,7 @@
 # Introduction:
 This streamlit application dynamically routes user queries to the most appropriate model based on semantic similarity.User queries are sent to predefined routes of maths or coding or users have the option to create their own custom route. This optimizes output quality whilst cutting costs.
 # Quick Demo
-[Click here to view the video](https://github.com/ithanigaikumar/SemanticRouter/blob/main/streamplitappvideo.mp4)
+[Click here to view the video](https://github.com/ithanigaikumar/SemanticRouter/releases/download/v1.0.0/streamlitappvideo.mp4)
 
 
 # Repository and deployment
